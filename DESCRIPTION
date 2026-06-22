@@ -4,9 +4,11 @@ Version: 0.1.0
 Authors@R:
     person("David", "Granjon", email = "david.granjon@cynkra.com",
            role = c("aut", "cre"))
-Description: A small example extension for the useR! 2026 blockr talk. Wraps
-    The Cat API breeds endpoint as a single blockr data block, registered with
-    the block registry on load.
+Description: A small example extension for the useR! 2026 blockr talk. Ships a
+    bundled cat breeds dataset (sourced from The Cat API) as a set of blockr
+    blocks, registered with the block registry on load. The dataset is rebuilt
+    from the API on demand via the data-raw pipeline, so the package never
+    queries the API at runtime.
 License: GPL-3
 Encoding: UTF-8
 Imports:
@@ -14,6 +16,7 @@ Imports:
     blockr.ggplot,
     echarts4r,
     htmltools,
-    jsonlite,
     shiny
+Suggests:
+    jsonlite
 RoxygenNote: 7.3.2

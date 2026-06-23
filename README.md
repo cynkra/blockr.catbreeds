@@ -1,9 +1,9 @@
 # blockr.catbreeds
 
-A small [blockr](https://blockr.site/) extension that wraps [The Cat
-API](https://thecatapi.com/) breeds endpoint as a set of blocks: a data block
-that fetches live cat breed data, plus transform, plot and display blocks built
-around it.
+A small [blockr](https://blockr.site/) extension built around [The Cat
+API](https://thecatapi.com/) breeds data: a data block that serves the bundled
+breeds dataset (rebuilt from the API on demand via `data-raw/`), plus transform,
+plot and display blocks built around it.
 
 Originally written for the useR! 2026 blockr workshop, now standalone so it can
 be reused.
@@ -32,11 +32,28 @@ You can also call the fetcher directly:
 breeds <- blockr.catbreeds::catbreeds_fetch()
 ```
 
+## Demo apps
+
+Two ready-to-run boards from the useR! 2026 talk ship under `inst/examples`:
+
+```r
+# full reference board (cat-breeds analysis across three views)
+shiny::runApp(system.file("examples", "app.R", package = "blockr.catbreeds"))
+
+# near-empty starter used for the live build-from-scratch demo
+shiny::runApp(system.file("examples", "app-build.R", package = "blockr.catbreeds"))
+```
+
+They pull in the wider blockr stack (`blockr.dock`, `blockr.dplyr`, `blockr.ggplot`,
+`blockr.viz`, `blockr.leaflet`, `blockr.echarts`, `blockr.dag`, `blockr.ai`,
+`blockr.assistant`, `blockr.session`); install those first. The AI pieces use
+blockr's default LLM, so set `OPENAI_API_KEY` before launching.
+
 ## Blocks
 
 | Block | Category | Description |
 | --- | --- | --- |
-| Cat breeds | input | Live cat breed data from The Cat API |
+| Cat breeds | input | Cat breed data (bundled CSV, built from The Cat API) |
 | Trait correlation | transform | Correlation matrix of numeric columns, in long form |
 | Similar breeds | transform | Nearest breeds to the picked one by trait distance |
 | Temperament word cloud | plot | Word cloud of the comma-separated temperament words |

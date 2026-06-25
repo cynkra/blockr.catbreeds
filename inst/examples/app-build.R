@@ -25,6 +25,49 @@ library(blockr.catbreeds) # this package: the catbreeds data block + breed card/
 # card/flags/stats/similar/correlation/trait-matrix/cloud blocks.
 # Install with: pak::pak("cynkra/blockr.catbreeds")
 
+# Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
+# `function(...)` definition inside a bquoted expression has a trailing NULL
+# srcref slot; `e_list[[i]] <- process_splices(...)` assigns NULL, which *drops*
+# that slot (length 4 -> 3), so the later `names(e_list) <- names_e` throws
+# "'names' attribute [4] must be the same length as the vector [3]". This breaks
+# every custom block whose quoted expr contains an anonymous function (breed
+# stats/flags, similar, wordcloud, ...). Fix: use `e_list[i] <- list(...)`, which
+# preserves NULL slots. The proper fix belongs upstream in blockr.core.
+local({
+  ns <- asNamespace("blockr.core")
+  if (!exists("bbquote", envir = ns, inherits = FALSE)) {
+    return(invisible())
+  }
+  src <- paste(deparse(get("bbquote", ns)), collapse = "\n")
+  fixed <- sub(
+    "e_list[[i]] <- process_splices(e_list[[i]])",
+    "e_list[i] <- list(process_splices(e_list[[i]]))",
+    src,
+    fixed = TRUE
+  )
+  if (identical(fixed, src)) {
+    return(invisible())
+  }
+  patched <- eval(parse(text = fixed))
+  environment(patched) <- ns
+  utils::assignInNamespace("bbquote", patched, ns = "blockr.core")
+  # bbquote is imported (by value) into every package that calls it, so the
+  # blocks see their own stale copy. Replace it in each loaded namespace and in
+  # each namespace's imports environment.
+  for (nm in loadedNamespaces()) {
+    target <- asNamespace(nm)
+    for (env in list(target, parent.env(target))) {
+      if (exists("bbquote", envir = env, inherits = FALSE) &&
+          !identical(get("bbquote", envir = env), patched)) {
+        if (environmentIsLocked(env) && bindingIsLocked("bbquote", env)) {
+          unlockBinding("bbquote", env)
+        }
+        assign("bbquote", patched, envir = env)
+      }
+    }
+  }
+})
+
 # Work around a blockr.dock startup race that empties every view. On session
 # init, sync_layouts_to_board() reads each dock's *live* dockview layout through
 # live_view_data() (after a 250ms debounce). If that fires before a dock has

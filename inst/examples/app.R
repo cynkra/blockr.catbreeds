@@ -52,65 +52,6 @@ library(blockr.echarts) # radar, gauge, heatmap, treemap (no blockr.viz equivale
 library(blockr.viz) # BI blocks: tile scorecards, chart, drilldown table (Global cat)
 library(blockr.catbreeds) # this package: the catbreeds data block + breed card/flags/stats/similar blocks
 
-# Work around a blockr.assistant bug: when it builds the board summary for the
-# system prompt, summarise_block.block formats each constructor-state arg, but
-# blocks with list-valued state (filter conditions, summary specs, pivot cols,
-# ...) format to several lines (or none) and the strict vapply inside throws
-# "values must be length 1 ...". Collapse each arg to one string. (The proper
-# fix belongs upstream in blockr.assistant.)
-local({
-  # Only patch if the target still exists (newer blockr.assistant may have
-  # renamed or fixed it); otherwise this assignInNamespace would error.
-  if (
-    !exists(
-      "summarise_block.block",
-      envir = asNamespace("blockr.assistant"),
-      inherits = FALSE
-    )
-  ) {
-    return(invisible())
-  }
-  patched <- function(x, board, id, ...) {
-    args <- blockr.core:::initial_block_state(x)
-    ctrl <- attr(x, "external_ctrl")
-    one <- function(v) {
-      f <- format(v)
-      if (length(f)) paste(f, collapse = ", ") else ""
-    }
-    args_str <- if (length(args)) {
-      paste(
-        vapply(
-          names(args),
-          function(nm) sprintf("%s=%s", nm, one(args[[nm]])),
-          character(1)
-        ),
-        collapse = ", "
-      )
-    } else {
-      "no args"
-    }
-    ctrl_str <- if (isTRUE(ctrl)) {
-      "all args + block_name"
-    } else if (isFALSE(ctrl) || !length(ctrl)) {
-      "block_name only"
-    } else {
-      paste(c(ctrl, "block_name"), collapse = ", ")
-    }
-    sprintf(
-      "- %s (%s): %s [modifiable: %s]",
-      id,
-      class(x)[[1L]],
-      args_str,
-      ctrl_str
-    )
-  }
-  utils::assignInNamespace(
-    "summarise_block.block",
-    patched,
-    ns = "blockr.assistant"
-  )
-})
-
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
 # `function(...)` definition inside a bquoted expression has a trailing NULL
 # srcref slot; `e_list[[i]] <- process_splices(...)` assigns NULL, which *drops*

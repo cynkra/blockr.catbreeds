@@ -11,13 +11,14 @@
 library(blockr.core)
 library(blockr.dock)
 library(blockr.dag)
+library(blockr.io)
 library(blockr.dplyr)
 library(blockr.ggplot)
 library(blockr.assistant)
 library(blockr.ai)
+library(blockr.dm)
 library(blockr.session)
 library(blockr.leaflet) # custom "map block" we built (markers per origin)
-library(blockr.echarts) # radar, gauge, heatmap, treemap (no blockr.viz equivalent)
 library(blockr.viz) # BI blocks: tile scorecards, chart, drilldown table (Global cat)
 library(blockr.catbreeds) # this package: the catbreeds data block + breed card/flags/stats/similar blocks
 
@@ -57,8 +58,10 @@ local({
   for (nm in loadedNamespaces()) {
     target <- asNamespace(nm)
     for (env in list(target, parent.env(target))) {
-      if (exists("bbquote", envir = env, inherits = FALSE) &&
-          !identical(get("bbquote", envir = env), patched)) {
+      if (
+        exists("bbquote", envir = env, inherits = FALSE) &&
+          !identical(get("bbquote", envir = env), patched)
+      ) {
         if (environmentIsLocked(env) && bindingIsLocked("bbquote", env)) {
           unlockBinding("bbquote", env)
         }

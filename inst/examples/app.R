@@ -42,6 +42,7 @@
 library(blockr.core)
 library(blockr.dock)
 library(blockr.dag)
+library(blockr.io)
 library(blockr.dplyr)
 library(blockr.ggplot)
 library(blockr.assistant)
@@ -84,8 +85,10 @@ local({
   for (nm in loadedNamespaces()) {
     target <- asNamespace(nm)
     for (env in list(target, parent.env(target))) {
-      if (exists("bbquote", envir = env, inherits = FALSE) &&
-          !identical(get("bbquote", envir = env), patched)) {
+      if (
+        exists("bbquote", envir = env, inherits = FALSE) &&
+          !identical(get("bbquote", envir = env), patched)
+      ) {
         if (environmentIsLocked(env) && bindingIsLocked("bbquote", env)) {
           unlockBinding("bbquote", env)
         }

@@ -11,6 +11,7 @@
 library(blockr.core)
 library(blockr.dock)
 library(blockr.dag)
+library(blockr.extra) # Function blocks
 library(blockr.io)
 library(blockr.dplyr)
 library(blockr.ggplot)

@@ -45,7 +45,6 @@ build_cat_breeds <- function(url = "https://api.thecatapi.com/v1/breeds") {
     name              = col("name"),
     origin            = col("origin"),
     country_code      = col("country_code"),
-    breed_group       = col("breed_group"),
     temperament       = col("temperament"),
     description       = col("description"),
     alt_names         = col("alt_names"),

@@ -8,8 +8,8 @@
 #' @param min_dog Integer 1-5. Keep breeds with `dog_friendly >= min_dog`.
 #' @param rare Logical. If `TRUE`, keep only breeds flagged `rare`.
 #' @return A data frame with one row per breed: identity and text fields
-#'   (`name`, `origin`, `country_code`, `breed_group`, `temperament`,
-#'   `description`, `alt_names`, `wikipedia_url`, `image_url`), the origin-country
+#'   (`name`, `origin`, `country_code`, `temperament`, `description`,
+#'   `alt_names`, `wikipedia_url`, `image_url`), the origin-country
 #'   centroid (`lat`, `lng`), numeric `weight_kg` and `life_span_yrs`, the full
 #'   set of 1-5 trait scores (affection, energy, intelligence, dog/child/stranger
 #'   friendliness, adaptability, grooming, shedding, social needs, vocalisation,

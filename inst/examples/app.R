@@ -484,6 +484,11 @@ board <- new_dock_board(
   )
 )
 
+# NOTE: do NOT add `loader = rack_loader()` here. This is a PRE-POPULATED
+# reference board; rack_loader() returns clear_board(default) on a cold load
+# (no `?id`/`?board_name`), which would wipe the reference workflow to a blank
+# canvas. rack_loader() is only for boards that start empty (see app-build.R).
+# The default local_loader() returns the populated board on a cold load.
 serve(
   board,
   plugins = custom_plugins(list(

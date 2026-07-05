@@ -87,9 +87,14 @@ board <- new_dock_board(
 )
 
 serve(
-  board,
-  plugins = custom_plugins(list(
+  board, "empty_workflow",
+  plugins = custom_plugins(c(
     ai_ctrl_block(), # blockr.ai: per-block AI controls
     manage_project() # blockr.session: project save / load / versions
-  ))
+  )),
+  # manage_project() save/restore needs the rack loader: the default
+  # local_loader() ignores the `?board_name` query that restore navigates to,
+  # so a saved board reloads blank. rack_loader() resolves it from the pins
+  # backend (board_local() here, i.e. per-container — fine within a session).
+  loader = blockr.session::rack_loader()
 )

@@ -43,15 +43,21 @@ library(blockr.core)
 library(blockr.dock)
 library(blockr.dag)
 library(blockr.io)
+library(blockr.extra) # function blocks + the HTML table-preview glue (options below)
 library(blockr.dplyr)
 library(blockr.ggplot)
 library(blockr.assistant)
 library(blockr.ai)
 library(blockr.session)
 library(blockr.leaflet) # custom "map block" we built (markers per origin)
-library(blockr.echarts) # radar, gauge, heatmap, treemap (no blockr.viz equivalent)
-library(blockr.viz) # BI blocks: tile scorecards, chart, drilldown table (Global cat)
+library(blockr.viz) # BI blocks: tile scorecards, chart, drilldown + shaded tables (Global cat)
 library(blockr.catbreeds) # this package: the catbreeds data block + breed card/flags/stats/similar blocks
+
+# Swap the default DT previews for the shared blockr.ui HTML table preview on
+# plain data / transform blocks. blockr.extra (loaded above) reads this at
+# render time; specialised blocks (viz tables/charts, ggplot, leaflet) keep
+# their own output since they dispatch on their own class.
+options(blockr.html_table_preview = TRUE)
 
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
 # `function(...)` definition inside a bquoted expression has a trailing NULL
@@ -216,13 +222,20 @@ board <- new_dock_board(
       block_name = "Cats like yours"
     ),
 
-    # --- Data view: trait correlation heatmap (custom correlation block) -----
+    # --- Data view: trait correlation matrix as a diverging shaded table -----
+    # new_correlation_block emits long (x, y, corr); pivot to a wide trait x
+    # trait matrix and let blockr.viz shade the cells diverging around 0 -- a
+    # table "heatmap" that replaces the echarts heatmap block.
     corr = new_correlation_block(block_name = "Trait correlation"),
-    heatmap = new_echart_heatmap_block(
-      x = "x",
-      y = "y",
-      value = "corr",
-      title = "Trait correlation",
+    corr_wide = new_pivot_wider_block(
+      names_from = "y",
+      values_from = "corr",
+      block_name = "Correlation matrix (wide)"
+    ),
+    heatmap = new_table_block(
+      rowname = "x",
+      shadings = list(list(mode = "diverging", cols = list())),
+      digits = 2L,
       visible = "outputs",
       block_name = "Do traits move together?"
     ),
@@ -265,11 +278,18 @@ board <- new_dock_board(
       ),
       block_name = "Label heatmap axes"
     ),
-    compat = new_echart_heatmap_block(
-      x = "child_friendly",
-      y = "affection_level",
-      value = "n",
-      title = "Affectionate & good with kids?",
+    # Pivot the labelled counts to a wide child x affection grid (fill empty
+    # combos with 0) and shade sequentially -- a table heatmap replacing the
+    # echarts one.
+    compat_wide = new_pivot_wider_block(
+      names_from = "affection_level",
+      values_from = "n",
+      values_fill = 0,
+      block_name = "Kid x affection (wide)"
+    ),
+    compat = new_table_block(
+      rowname = "child_friendly",
+      shadings = list(list(mode = "sequential", cols = list())),
       visible = "outputs",
       block_name = "Affectionate & good with kids?"
     ),
@@ -424,14 +444,16 @@ board <- new_dock_board(
     new_link("pick", "flags", "data"),
 
     new_link("breeds", "corr", "data"),
-    new_link("corr", "heatmap", "data"),
+    new_link("corr", "corr_wide", "data"),
+    new_link("corr_wide", "heatmap", "data"),
 
     new_link("breeds", "count_origin", "data"),
     new_link("count_origin", "treemap", "data"),
 
     new_link("breeds", "compat_count", "data"),
     new_link("compat_count", "compat_label", "data"),
-    new_link("compat_label", "compat", "data"),
+    new_link("compat_label", "compat_wide", "data"),
+    new_link("compat_wide", "compat", "data"),
 
     new_link("breeds", "life_density", "data"),
     new_link("breeds", "geo_map", "data"),

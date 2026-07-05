@@ -27,6 +27,10 @@ library(blockr.catbreeds) # this package: the catbreeds data block + breed card/
 # card/flags/stats/similar/correlation/trait-matrix/cloud blocks.
 # Install with: pak::pak("cynkra/blockr.catbreeds")
 
+# Blocks the user builds get the shared blockr.ui HTML table preview instead of
+# DT (blockr.extra, loaded above, reads this at render time).
+options(blockr.html_table_preview = TRUE)
+
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
 # `function(...)` definition inside a bquoted expression has a trailing NULL
 # srcref slot; `e_list[[i]] <- process_splices(...)` assigns NULL, which *drops*

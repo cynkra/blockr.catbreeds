@@ -252,7 +252,7 @@ board <- new_dock_board(
       rowname = "x",
       shadings = list(list(mode = "diverging", cols = list())),
       digits = 2L,
-      visible = "outputs",
+      visible = "inputs",
       block_name = "Do traits move together?"
     ),
 
@@ -306,7 +306,7 @@ board <- new_dock_board(
     compat = new_table_block(
       rowname = "child_friendly",
       shadings = list(list(mode = "sequential", cols = list())),
-      visible = "outputs",
+      visible = "inputs",
       block_name = "Affectionate & good with kids?"
     ),
 
@@ -391,6 +391,7 @@ board <- new_dock_board(
       rowname = "name",
       values = c("life_span_yrs", "weight_kg"),
       digits = 1L,
+      visible = "inputs",
       block_name = "Breeds in selection"
     ),
 

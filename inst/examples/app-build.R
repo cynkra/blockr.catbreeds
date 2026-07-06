@@ -82,11 +82,7 @@ board <- new_dock_board(
     assistant = new_assistant_extension()
   ),
   layouts = list(
-    Build = dock_layout(
-      "assistant_extension",
-      "dag_extension",
-      sizes = c(0.5, 0.5)
-    )
+    Build = dock_layout("dag_extension")
   )
 )
 

@@ -39,19 +39,35 @@
 # before launching. To use Claude instead, uncomment the options() call below
 # and set ANTHROPIC_API_KEY.
 
-library(blockr.core)
-library(blockr.dock)
-library(blockr.dag)
-library(blockr.io)
-library(blockr.extra) # function blocks + the HTML table-preview glue (options below)
-library(blockr.dplyr)
-library(blockr.ggplot)
-library(blockr.assistant)
-library(blockr.ai)
-library(blockr.session)
-library(blockr.leaflet) # custom "map block" we built (markers per origin)
-library(blockr.viz) # BI blocks: tile scorecards, chart, drilldown + shaded tables (Global cat)
-library(blockr.catbreeds) # this package: the catbreeds data block + breed card/flags/stats/similar blocks
+# ---- Package loading (dual: installed vs local source) ---------------------
+# `dev_local = FALSE` (the default, and what ships) attaches the INSTALLED
+# packages with library(). Set it to TRUE -- or source this file from a wrapper
+# that sets it first, see dev/app.R -- to load every blockr package from its
+# LOCAL source checkout with pkgload::load_all(), which picks up your latest
+# uncommitted changes. Same dual style as blockr.insurance/dev/treaty-pricer.R.
+# The load_all path uses bare dir names, so run it from the workspace root.
+if (!exists("dev_local")) dev_local <- FALSE
+
+blockr_pkgs <- c(
+  "blockr.core",
+  "blockr.dock",
+  "blockr.dag",
+  "blockr.io",
+  "blockr.extra",     # function blocks + the HTML table-preview glue (option below)
+  "blockr.dplyr",
+  "blockr.ggplot",
+  "blockr.assistant",
+  "blockr.ai",
+  "blockr.session",
+  "blockr.leaflet",   # custom "map block" we built (markers per origin)
+  "blockr.viz",       # BI blocks: tile scorecards, chart, drilldown + shaded tables
+  "blockr.catbreeds"  # this package: catbreeds data block + card/flags/stats/similar
+)
+
+for (pkg in blockr_pkgs) {
+  if (dev_local) pkgload::load_all(pkg, quiet = TRUE)
+  else library(pkg, character.only = TRUE)
+}
 
 # Swap the default DT previews for the shared blockr.ui HTML table preview on
 # plain data / transform blocks. blockr.extra (loaded above) reads this at
@@ -481,26 +497,42 @@ board <- new_dock_board(
       "breeds",
       sizes = c(0.4, 0.6)
     ),
+    # Three columns. Related panels are stacked as TABS (panels()) rather than
+    # all shown at once, so the view reads as "identity | ranking | explore"
+    # instead of an eight-panel wall.
     mycat = dock_layout(
-      group("card", "flags", "flag", sizes = c(0.46, 0.18, 0.36)),
-      group("stats", "radar", "map", sizes = c(0.30, 0.36, 0.34)),
-      group("similar_bar", "scatter"),
-      sizes = c(0.23, 0.45, 0.32),
+      # Left -- the picked breed: photo up top, badges and the picker behind tabs.
+      group(
+        "card",
+        panels("flags", "flag", active = "flags"),
+        sizes = c(0.58, 0.42)
+      ),
+      # Middle -- how it ranks, then the trait radar below it.
+      group("stats", "radar", sizes = c(0.4, 0.6)),
+      # Right -- the interactive charts and the origins map, one tab at a time.
+      panels("scatter", "similar_bar", "map", active = "scatter"),
+      sizes = c(0.26, 0.42, 0.32),
       name = "My cat"
     ),
+    # KPI tile row on top; below it three columns, each a tab strip of related
+    # panels, with the chart-filter -> drilldown-table pair kept side by side.
     global = dock_layout(
       "kpis",
       group(
-        "trait_matrix",
-        "geo_map",
-        group("heatmap", "compat"),
-        group("wordcloud", "treemap"),
-        group("origin_bar", "vfilter"),
-        group("pivot", "life_density"),
-        sizes = c(0.19, 0.21, 0.15, 0.15, 0.15, 0.15)
+        # The two "matrix" heatmaps.
+        panels("trait_matrix", "heatmap", active = "trait_matrix"),
+        # Distributions and personality.
+        panels("wordcloud", "life_density", "compat", active = "wordcloud"),
+        # Origins: the summary views as tabs, plus the live filter -> table pair.
+        group(
+          panels("treemap", "origin_bar", "geo_map", active = "treemap"),
+          panels("vfilter", "pivot", active = "vfilter"),
+          sizes = c(0.5, 0.5)
+        ),
+        sizes = c(0.3, 0.32, 0.38)
       ),
       orientation = "vertical",
-      sizes = c(0.33, 0.67), # tile scorecards need a fair bit of height
+      sizes = c(0.22, 0.78), # tile scorecards need a fair bit of height
       name = "Global cat"
     )
   )

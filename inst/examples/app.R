@@ -69,6 +69,21 @@ for (pkg in blockr_pkgs) {
   else library(pkg, character.only = TRUE)
 }
 
+# ---- Curate the block browser ----------------------------------------------
+# Keep ONLY `dataset` and `glue` from blockr.core; drop its low-level / noise
+# blocks (subset, merge, rbind, head, scatter, csv, filebrowser, upload) via
+# unregister_blocks(), selecting by the registry `package` attribute so only
+# core blocks are affected.
+core_keep <- c("dataset_block", "glue_block")
+core_drop <- setdiff(
+  names(Filter(
+    function(entry) identical(attr(entry, "package"), "blockr.core"),
+    available_blocks()
+  )),
+  core_keep
+)
+unregister_blocks(core_drop)
+
 # Swap the default DT previews for the shared blockr.ui HTML table preview on
 # plain data / transform blocks. blockr.extra (loaded above) reads this at
 # render time; specialised blocks (viz tables/charts, ggplot, leaflet) keep

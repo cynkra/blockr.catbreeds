@@ -88,7 +88,14 @@ unregister_blocks(core_drop)
 # plain data / transform blocks. blockr.extra (loaded above) reads this at
 # render time; specialised blocks (viz tables/charts, ggplot, leaflet) keep
 # their own output since they dispatch on their own class.
-options(blockr.tabular_display = blockr.ui::html_table_display)
+options(
+  blockr.tabular_display = blockr.ui::html_table_display,
+  # Build a block only once it is required, instead of staggering every
+  # off-screen block into existence in the background. This board carries ~34
+  # blocks across three views, so the default pass spends the whole startup
+  # constructing blocks nobody is looking at.
+  blockr.background_construction_delay = Inf
+)
 
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
 # `function(...)` definition inside a bquoted expression has a trailing NULL

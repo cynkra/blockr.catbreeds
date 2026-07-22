@@ -507,8 +507,8 @@ board <- new_dock_board(
   extensions = list(
     dag = new_dag_extension()
   ),
-  layouts = list(
-    Build = dock_layout(
+  grids = list(
+    Build = dock_grid(
       "dag_extension",
       "breeds",
       sizes = c(0.4, 0.6)
@@ -516,7 +516,7 @@ board <- new_dock_board(
     # Three columns. Related panels are stacked as TABS (panels()) rather than
     # all shown at once, so the view reads as "identity | ranking | explore"
     # instead of an eight-panel wall.
-    mycat = dock_layout(
+    mycat = dock_grid(
       # Left -- the picked breed: photo up top, badges and the picker behind tabs.
       group(
         "card",
@@ -527,12 +527,11 @@ board <- new_dock_board(
       group("stats", "radar", sizes = c(0.4, 0.6)),
       # Right -- the interactive charts and the origins map, one tab at a time.
       panels("scatter", "similar_bar", "map", active = "scatter"),
-      sizes = c(0.26, 0.42, 0.32),
-      name = "My cat"
+      sizes = c(0.26, 0.42, 0.32)
     ),
     # KPI tile row on top; below it three columns, each a tab strip of related
     # panels, with the chart-filter -> drilldown-table pair kept side by side.
-    global = dock_layout(
+    global = dock_grid(
       "kpis",
       group(
         # The two "matrix" heatmaps.
@@ -548,11 +547,18 @@ board <- new_dock_board(
         sizes = c(0.3, 0.32, 0.38)
       ),
       orientation = "vertical",
-      sizes = c(0.22, 0.78), # tile scorecards need a fair bit of height
-      name = "Global cat"
+      sizes = c(0.22, 0.78) # tile scorecards need a fair bit of height
     )
   )
 )
+
+# View ids may only contain letters, digits and . - _ , and dock_grid() carries
+# no display label, so tab captions with a space are set on the views afterwards.
+# The views themselves are reconstructed from the grids above.
+vws <- board_views(board)
+view_name(vws[["mycat"]]) <- "My cat"
+view_name(vws[["global"]]) <- "Global cat"
+board_views(board) <- vws
 
 # NOTE: do NOT add `loader = rack_loader()` here. This is a PRE-POPULATED
 # reference board; rack_loader() returns clear_board(default) on a cold load

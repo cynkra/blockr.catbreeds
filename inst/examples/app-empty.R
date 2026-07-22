@@ -115,8 +115,8 @@ board <- new_dock_board(
   extensions = list(
     dag = new_dag_extension()
   ),
-  layouts = list(
-    Build = dock_layout(
+  grids = list(
+    Build = dock_grid(
       "dag_extension"
     )
   )

@@ -88,7 +88,7 @@ unregister_blocks(core_drop)
 # plain data / transform blocks. blockr.extra (loaded above) reads this at
 # render time; specialised blocks (viz tables/charts, ggplot, leaflet) keep
 # their own output since they dispatch on their own class.
-options(blockr.html_table_preview = TRUE)
+options(blockr.tabular_display = blockr.ui::html_table_display)
 
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
 # `function(...)` definition inside a bquoted expression has a trailing NULL

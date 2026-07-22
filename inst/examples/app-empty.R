@@ -117,7 +117,10 @@ board <- new_dock_board(
   ),
   grids = list(
     Build = dock_grid(
-      "dag_extension"
+      # Addressed by mount key via ext(): extension ids are container-owned,
+      # so the class-derived "dag_extension" resolves to nothing and the view
+      # built from this grid comes out empty.
+      ext("dag")
     )
   )
 )

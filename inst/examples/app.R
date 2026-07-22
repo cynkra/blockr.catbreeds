@@ -516,7 +516,9 @@ board <- new_dock_board(
   ),
   grids = list(
     Build = dock_grid(
-      "dag_extension",
+      # ext(), not "dag_extension": extension ids are container-owned, so the
+      # class-derived name resolves to nothing and the panel silently vanishes.
+      ext("dag"),
       "breeds",
       sizes = c(0.4, 0.6)
     ),

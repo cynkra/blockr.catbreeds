@@ -21,7 +21,6 @@ blockr_pkgs <- c(
   "blockr.dock",
   "blockr.dag",
   "blockr.io",
-  "blockr.extra",     # function blocks + the HTML table-preview glue (option below)
   "blockr.dplyr",
   "blockr.ggplot",
   "blockr.assistant",
@@ -53,9 +52,8 @@ core_drop <- setdiff(
 unregister_blocks(core_drop)
 
 # Swap the default DT previews for the shared blockr.ui HTML table preview on
-# plain data / transform blocks. blockr.extra (loaded above) reads this at
-# render time; specialised blocks (viz tables/charts, ggplot, leaflet) keep
-# their own output since they dispatch on their own class.
+# plain data / transform blocks. Specialised blocks (viz tables/charts,
+# ggplot, leaflet) keep their own output since they dispatch on their own class.
 options(blockr.tabular_display = blockr.ui::html_table_display)
 
 # Work around a blockr.core bbquote() bug (>= 0.1.3): in process_splices(), a
